@@ -1,0 +1,57 @@
+# The same system as example-spec.json, written as YAML. Both formats parse
+# through the same code path (src/spec/parse.ts) since YAML is a strict
+# superset of JSON — paste either one into the Diagramate editor.
+schemaVersion: 1
+
+system:
+  name: Pallgerix
+  subtitle: Healthcare platform stack · 5 clinics · staff-only access
+
+root:
+  label: Pallgerix API
+  description: Core application server
+
+components:
+  - id: postgres
+    name: PostgreSQL
+    shortLabel: Primary DB
+    direction: bidirectional
+    colorFamily: blue
+    bullets:
+      - App reads and writes patient records on every request
+      - Nightly backup job dumps to encrypted S3 bucket
+
+  - id: stripe
+    name: Stripe
+    shortLabel: Payments
+    direction: outbound
+    colorFamily: teal
+    bullets:
+      - App calls Stripe to charge a card when an invoice is created
+      - Stripe webhook confirms payment status back to the app
+
+  - id: twilio
+    name: Twilio
+    shortLabel: SMS reminders
+    direction: outbound
+    colorFamily: green
+    bullets:
+      - App sends appointment reminder SMS 24h before visit
+
+  - id: auth0
+    name: Auth0
+    shortLabel: Staff login
+    direction: inbound
+    colorFamily: amber
+    bullets:
+      - Staff authenticate via Auth0 before accessing any clinic data
+      - Auth0 issues a JWT the app validates on every request
+
+  - id: s3
+    name: Amazon S3
+    shortLabel: File storage
+    direction: bidirectional
+    colorFamily: coral
+    bullets:
+      - App uploads scanned intake forms and lab results
+      - App generates signed URLs for staff to download files

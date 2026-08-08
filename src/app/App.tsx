@@ -3,7 +3,7 @@ import exampleSpec from "../../examples/example-spec.json";
 import { SpecEditor } from "../editor/SpecEditor";
 import { exportMermaid, exportStandaloneHtml, exportStaticPng, exportStaticSvg } from "../export";
 import { DiagramSvg } from "../renderer/DiagramSvg";
-import { validateSpec } from "../spec";
+import { parseSpecText, validateSpec } from "../spec";
 
 const DEFAULT_SPEC_TEXT = JSON.stringify(exampleSpec, null, 2);
 
@@ -12,13 +12,11 @@ export function App() {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const { spec, errors } = useMemo(() => {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(specText);
-    } catch (error) {
-      return { spec: null, errors: [`Invalid JSON: ${(error as Error).message}`] };
+    const parsed = parseSpecText(specText);
+    if (!parsed.ok) {
+      return { spec: null, errors: [`Couldn't parse spec (JSON or YAML): ${parsed.error}`] };
     }
-    const result = validateSpec(parsed);
+    const result = validateSpec(parsed.value);
     return result.ok
       ? { spec: result.spec, errors: [] }
       : { spec: null, errors: result.errors };
@@ -39,7 +37,7 @@ export function App() {
         <div>
           <h1 style={{ margin: 0, fontSize: 20, color: "#1B2A5B" }}>Diagramate</h1>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6B6656" }}>
-            Edit the spec below. The preview updates live.
+            Edit the spec below — JSON or YAML both work. The preview updates live.
           </p>
         </div>
         <SpecEditor value={specText} onChange={setSpecText} errors={errors} />

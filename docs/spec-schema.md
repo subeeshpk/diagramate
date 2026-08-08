@@ -1,9 +1,14 @@
 # Diagram spec schema (v1)
 
 This is the format every input path — the natural-language LLM adapters and
-the manual JSON editor — must produce, and the only format the renderer
-consumes. Derived directly from the fields in the original
+the manual editor — must produce, and the only format the renderer consumes.
+Derived directly from the fields in the original
 `architecture_diagram_prompt_template.md` (Template A).
+
+The editor accepts this spec as **either JSON or YAML** — they parse through
+the same code path (`src/spec/parse.ts`) since YAML is a strict superset of
+JSON, so there's no format toggle to pick. `examples/example-spec.json` and
+`examples/example-spec.yaml` are the same spec in both forms.
 
 ## Shape
 
