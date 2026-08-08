@@ -27,9 +27,11 @@ npm run dev
 ```
 
 Open the app, either:
-- paste a description of your system into the "Describe your system" box
-  (bring your own Anthropic or OpenAI API key), or
-- write/paste a spec directly (see `docs/spec-schema.md`).
+- click "Describe system", paste in your own Anthropic API key, and describe
+  your system in plain language (OpenAI is listed but currently disabled —
+  its API doesn't support direct browser calls; see `docs/architecture.md`), or
+- click "Write spec" and write/paste a spec directly, JSON or YAML (see
+  `docs/spec-schema.md`).
 
 Export the result as a self-contained animated HTML file, SVG, or PNG — or
 embed it live on any page with the `<diagramate-diagram>` web component:
@@ -62,9 +64,9 @@ diagramate/
 
 ## Roadmap
 
-v1: spec schema, manual editor, NL-to-spec via BYO LLM key, animated HTML/SVG/PNG export, embeddable web component, Mermaid C4 export, static hosting on GitHub Pages.
+v1 (done): spec schema (JSON/YAML), manual editor, NL-to-spec via BYO Anthropic key, animated HTML/SVG/PNG export, embeddable web component, Mermaid C4 export.
 
-v2+: multi-diagram "systems" (overview + per-flow), CLI for CI pipelines, more LLM providers.
+v2+: OpenAI support (needs a proxy — see `docs/architecture.md`), multi-diagram "systems" (overview + per-flow), CLI for CI pipelines, GitHub Pages deployment.
 
 Full detail in [VISION.md](./VISION.md).
 

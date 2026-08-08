@@ -52,10 +52,12 @@ look presentation-grade without hand-placing boxes in draw.io.
    connections, and connection types (sync / async / bidirectional / fan-out).
 2. A **web app** (React + TypeScript + Vite, static-hostable) with two entry
    points into that spec:
-   - Manual form/JSON editor (always works, no dependencies).
+   - Manual JSON/YAML editor (always works, no dependencies).
    - "Describe your system" natural-language box that calls an LLM
-     (user-supplied API key; Anthropic and OpenAI supported at launch) to
-     produce the spec.
+     (user-supplied API key). **Anthropic only at launch** — OpenAI's API
+     has no CORS support, so it can't be called directly from the browser;
+     see `docs/architecture.md` for the full reasoning and what it'd take
+     to add.
 3. A **renderer** that takes the spec and produces the animated diagram
    in-browser, matching the existing visual language (navy root, warm
    off-white background, color-cycling callout cards, flowing-dash

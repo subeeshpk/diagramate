@@ -41,17 +41,46 @@ One adapter per provider, each implementing:
 
 ```ts
 interface LLMAdapter {
+  id: string;
   name: string;
-  generateSpec(description: string, apiKey: string): Promise<DiagramSpec>;
+  supportsBrowserCalls: boolean;
+  generateSpec(description: string, apiKey: string): Promise<LLMGenerateResult>;
 }
 ```
 
-The adapter is responsible for prompting the model to return a `DiagramSpec`-
-shaped JSON object (the schema itself is passed in the system prompt) and
-validating/repairing the result before handing it to the renderer. If
-validation fails, surface the raw model output to the user for manual fixing
-rather than silently failing — the manual JSON editor is the fallback path
-for every NL failure.
+**Only Anthropic actually works browser-direct as of this writing.**
+Anthropic's API supports CORS via an opt-in
+`anthropic-dangerous-direct-browser-access: true` header (added August
+2024), which is exactly what the no-backend, BYO-key architecture needs.
+OpenAI's API has no CORS support at all — a browser `fetch` to
+`api.openai.com` fails before the request reaches OpenAI's servers,
+regardless of key validity. Since adding a backend proxy just for OpenAI
+would contradict the no-backend design principle above, `openaiAdapter` is
+registered (so it shows up in the provider list and the UI can explain why
+it's disabled) but its `generateSpec` throws immediately with a message
+pointing at Anthropic or the manual editor instead. Re-litigate this if
+OpenAI ever adds CORS support, or if a proxy-based path becomes worth the
+added complexity.
+
+`buildSystemPrompt()` (`src/llm/promptTemplate.ts`) embeds the schema rules
+directly in the prompt and must be kept in sync with `docs/spec-schema.md`
+by hand — there's no single source of truth generating both yet (tracked
+below).
+
+`parseModelResponse()` strips a markdown code fence if the model added one
+despite being told not to, then runs the result through the exact same
+`parseSpecText` + `validateSpec` pipeline the manual editor uses — a model
+response and a hand-written spec are indistinguishable once they're text.
+On failure it throws `SpecGenerationError` carrying both the raw response
+and the validation errors, so the UI can show the user what the model said
+and let them fix it in the manual editor rather than silently failing or
+retrying blindly.
+
+The API key lives only in the `DescribeSystem` component's React state —
+never written to `localStorage`/`sessionStorage`, never sent anywhere but
+directly to the provider's API. It's gone on reload; there is intentionally
+no "remember my key" feature, since persisting a key this component can't
+protect isn't a trade worth making for convenience.
 
 ### `renderer/`
 
@@ -110,4 +139,9 @@ embed shouldn't take down the host page.
 - Exact PNG rasterization approach for very tall diagrams (many rows) —
   canvas size limits vary by browser.
 - Whether to vendor the spec JSON Schema or generate it from TypeScript
-  types (zod + zod-to-json-schema is a reasonable default).
+  types (zod + zod-to-json-schema is a reasonable default) — would also let
+  `buildSystemPrompt()` generate its schema description instead of
+  hand-duplicating it.
+- Whether OpenAI support is worth a proxy (Cloudflare Worker, Vercel edge
+  function, etc.) given it breaks the no-backend guarantee for everyone,
+  not just OpenAI users.
