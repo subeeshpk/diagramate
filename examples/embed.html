@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Diagramate — embed example</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 40px 20px; background: #F7F6F2; font-family: 'Inter', sans-serif; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { color: #1B2A5B; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Embedded via &lt;diagramate-diagram&gt;</h1>
+    <p>No build step on this page — just the script tag below and the custom element.</p>
+
+    <!--
+      For local testing: run `npm run build:webcomponent` first, then open
+      this file directly (it references the built bundle one directory up).
+      In a real project, point the script src at wherever you host
+      dist-webcomponent/diagramate.js (e.g. your own static assets, or
+      unpkg/jsDelivr once this is published to npm).
+    -->
+    <script src="../dist-webcomponent/diagramate.js"></script>
+
+    <diagramate-diagram spec='{"schemaVersion":1,"system":{"name":"Pallgerix","subtitle":"Healthcare platform stack · 5 clinics · staff-only access"},"root":{"label":"Pallgerix API","description":"Core application server"},"components":[{"id":"postgres","name":"PostgreSQL","shortLabel":"Primary DB","direction":"bidirectional","colorFamily":"blue","bullets":["App reads and writes patient records on every request","Nightly backup job dumps to encrypted S3 bucket"]},{"id":"stripe","name":"Stripe","shortLabel":"Payments","direction":"outbound","colorFamily":"teal","bullets":["App calls Stripe to charge a card when an invoice is created","Stripe webhook confirms payment status back to the app"]},{"id":"auth0","name":"Auth0","shortLabel":"Staff login","direction":"inbound","colorFamily":"amber","bullets":["Staff authenticate via Auth0 before accessing any clinic data"]}]}'>
+    </diagramate-diagram>
+
+    <h1 style="margin-top: 48px;">Setting the spec as a JS object instead</h1>
+    <diagramate-diagram id="programmatic"></diagramate-diagram>
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("programmatic").spec = {
+          schemaVersion: 1,
+          system: { name: "Minimal Example" },
+          root: { label: "API Gateway" },
+          components: [
+            {
+              id: "queue",
+              name: "SQS",
+              direction: "outbound",
+              bullets: ["Gateway publishes order events for async processing"],
+            },
+          ],
+        };
+      });
+    </script>
+  </div>
+</body>
+</html>

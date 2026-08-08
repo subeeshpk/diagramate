@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-webcomponent/
 .env
 .env.local
 *.log
@@ -8,3 +9,4 @@ dist/
 vite.config.js
 vite.config.d.ts
 vite.config.js.timestamp-*.mjs
+*.timestamp-*.mjs

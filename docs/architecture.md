@@ -23,6 +23,7 @@ src/
 ├── renderer/        # spec -> SVG/DOM, layout engine, animation, theme
 ├── export/          # renderer output -> standalone HTML / SVG file / PNG (via canvas rasterization)
 ├── editor/          # UI: NL input box, JSON/YAML spec editor, live preview
+├── webcomponent/    # <diagramate-diagram> custom element + registration entry point
 └── app/             # top-level app shell, routing (single page for v1)
 ```
 
@@ -69,6 +70,33 @@ trap.
 - SVG: the rendered SVG on its own, animations stripped or kept as SMIL
   depending on target (static docs usually want them stripped).
 - PNG: rasterize the SVG via an offscreen canvas.
+
+### `webcomponent/`
+
+`DiagramateElement` is a plain `HTMLElement` subclass (not a React component)
+that mounts a React root into a shadow DOM and renders `<DiagramSvg>` inside
+it — reusing the exact same renderer as the main app, so the embed and the
+in-app preview can never visually drift apart. Shadow DOM keeps the diagram's
+`<style>` (the flowing-dash keyframes, fonts) from leaking into or colliding
+with the host page's CSS.
+
+It's built as a **separate library bundle** (`vite.webcomponent.config.ts`,
+`npm run build:webcomponent`), not part of the main app bundle, because the
+two have opposite goals: the app bundle can assume the page is `index.html`
+and split code freely; the embed bundle has to be one dependency-free
+`<script src>` a random doc site can drop in, so it bundles React and
+ReactDOM directly into itself. That trade-off is what makes it ~530KB
+(~160KB gzipped) — acceptable for an embedded diagram on a docs page, not
+something to import into an app that already ships React (a
+React-component-only export, skipping the custom-element wrapper and letting
+the host's own React tree render `<DiagramSvg>` directly, is a reasonable
+follow-up if that use case comes up).
+
+Spec input is either a `spec="<json>"` attribute (re-parsed on every
+attribute change) or a `.spec = {...}` property set from JS — both go through
+the same `validateSpec` used everywhere else, and invalid specs render an
+inline error panel in the shadow DOM instead of throwing, since a broken
+embed shouldn't take down the host page.
 
 ## What v1 explicitly does not need
 

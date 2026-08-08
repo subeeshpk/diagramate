@@ -60,7 +60,9 @@ look presentation-grade without hand-placing boxes in draw.io.
    in-browser, matching the existing visual language (navy root, warm
    off-white background, color-cycling callout cards, flowing-dash
    connectors).
-4. **Exports**: self-contained animated HTML, static SVG, static PNG.
+4. **Exports**: self-contained animated HTML, static SVG, static PNG, and an
+   embeddable `<diagramate-diagram>` web component (own bundle, ships React
+   inlined so any page can drop it in with one `<script>` tag).
 5. Deployed as a static site (GitHub Pages) so anyone can use it with zero
    backend cost to the maintainer.
 
@@ -68,7 +70,6 @@ look presentation-grade without hand-placing boxes in draw.io.
 
 - Mermaid/C4 DSL export (real value, but a second renderer — do after v1
   renderer is proven).
-- Embeddable `<script>` web component build target.
 - Multi-diagram "systems" (overview + per-flow diagrams from one spec, per
   Template B in the original prompt file).
 - Additional LLM providers / local model support.

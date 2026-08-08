@@ -12,6 +12,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:webcomponent": "tsc -b && vite build --config vite.webcomponent.config.ts",
+    "build:all": "npm run build && npm run build:webcomponent",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run"
