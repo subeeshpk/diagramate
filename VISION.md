@@ -70,10 +70,25 @@ look presentation-grade without hand-placing boxes in draw.io.
 5. Deployed as a static site (GitHub Pages) so anyone can use it with zero
    backend cost to the maintainer.
 
+## Peer-to-peer system design (shipped)
+
+The hub-and-spoke spec (one root + its dependencies) can't represent a
+FAANG-interview-style system design — services calling each other, a queue
+fanning out to multiple consumers, a cache both read and written. That's
+"Template B" from the original prompt file, and it turned out to be the
+actual driving use case behind this whole project, not a nice-to-have. It
+shipped as a second spec shape (`nodes`/`edges`, see
+`docs/spec-schema.md`'s "System design (graph) spec" section) that the
+editor auto-detects alongside the original hub-and-spoke spec — same tool,
+same renderer palette, two diagram shapes. See `docs/architecture.md`'s
+`systemDesign/` section for the layout algorithm and what's still missing
+(NL generation for this spec shape, edge-crossing minimization).
+
 ## Deferred to v2+ (don't build yet)
 
-- Multi-diagram "systems" (overview + per-flow diagrams from one spec, per
-  Template B in the original prompt file).
+- Per-flow diagram breakdown for very large systems (splitting one big
+  system design into an overview + focused sub-diagrams per flow, rather
+  than one diagram trying to show everything at once).
 - Additional LLM providers / local model support.
 - A CLI (`npx diagramate render spec.yaml`) for CI/doc-pipeline use.
 

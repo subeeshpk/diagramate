@@ -1,13 +1,13 @@
-import type { DiagramSpec } from "../spec";
 import { PAGE_BG } from "../renderer/theme";
-import { downloadBlob, slugify } from "./download";
+import { downloadBlob, slugify, type ExportableSpec } from "./download";
 
 /**
  * Wraps a rendered <svg> element's markup into a standalone HTML file:
  * inline styles, Google Fonts link, the SVG itself, and the footer note
- * from the original prompt template. No external JS dependencies.
+ * from the original prompt template. No external JS dependencies. Works
+ * for both DiagramSpec and SystemDesignSpec — see ExportableSpec.
  */
-export function buildStandaloneHtml(svgElement: SVGSVGElement, spec: DiagramSpec): string {
+export function buildStandaloneHtml(svgElement: SVGSVGElement, spec: ExportableSpec): string {
   const svgMarkup = new XMLSerializer().serializeToString(svgElement);
 
   return `<!doctype html>
@@ -50,7 +50,7 @@ export function buildStandaloneHtml(svgElement: SVGSVGElement, spec: DiagramSpec
 `;
 }
 
-export function exportStandaloneHtml(svgElement: SVGSVGElement, spec: DiagramSpec) {
+export function exportStandaloneHtml(svgElement: SVGSVGElement, spec: ExportableSpec) {
   const html = buildStandaloneHtml(svgElement, spec);
   downloadBlob(html, `${slugify(spec.system.name)}-architecture.html`, "text/html");
 }

@@ -1,12 +1,11 @@
-import type { DiagramSpec } from "../spec";
-import { downloadBlob, slugify } from "./download";
+import { downloadBlob, slugify, type ExportableSpec } from "./download";
 
 /**
  * Rasterizes the SVG via an offscreen <canvas>. Works for v1's diagram
  * sizes; very tall multi-row diagrams may hit browser canvas size limits —
  * tracked as an open question in docs/architecture.md.
  */
-export async function exportStaticPng(svgElement: SVGSVGElement, spec: DiagramSpec) {
+export async function exportStaticPng(svgElement: SVGSVGElement, spec: ExportableSpec) {
   const width = svgElement.viewBox.baseVal.width || svgElement.clientWidth;
   const height = svgElement.viewBox.baseVal.height || svgElement.clientHeight;
   const scale = 2; // export at 2x for crisp text

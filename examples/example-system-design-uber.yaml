@@ -1,0 +1,118 @@
+# A FAANG-interview-style system design for Uber's ride-matching flow,
+# modeled after the classic "driver assignment" whiteboard diagram: mobile
+# clients, a notification/websocket layer, a queue-mediated assignment
+# service, and the datastores it depends on. This uses the system-design
+# (graph) spec — nodes + directed edges — not the hub-and-spoke spec (see
+# example-spec-uber-system-design.yaml for that version). The graph shape
+# is what lets this show actual peer-to-peer service calls and a queue
+# fan-out instead of flattening everything into "things the API depends on."
+schemaVersion: 1
+
+system:
+  name: Uber — Ride Matching System Design
+  subtitle: Driver assignment flow · mobile clients, queue-mediated matching, real-time updates
+
+nodes:
+  - id: driver-app
+    name: Driver App
+    kind: client
+
+  - id: rider-app
+    name: Rider App
+    kind: client
+
+  - id: notification-service
+    name: Notification Service
+    kind: service
+
+  - id: websocket-service
+    name: Rider WebSocket Service
+    kind: gateway
+
+  - id: driver-assignment-service
+    name: Driver Assignment Service
+    kind: service
+
+  - id: driver-assignment-queue
+    name: Driver Assignment Queue
+    kind: queue
+
+  - id: ride-service
+    name: Ride Service
+    kind: service
+
+  - id: kafka
+    name: Kafka
+    kind: queue
+
+  - id: driver-location-cache
+    name: Driver Location Cache
+    kind: cache
+
+  - id: distributed-lock
+    name: Distributed Lock
+    kind: cache
+
+  - id: database
+    name: Database
+    kind: database
+
+  - id: mapping-service
+    name: Third Party Mapping Service
+    kind: external
+
+edges:
+  - from: driver-app
+    to: notification-service
+    kind: bidirectional
+    label: driver status / push
+
+  - from: rider-app
+    to: websocket-service
+    kind: bidirectional
+    label: live connection
+
+  - from: driver-assignment-service
+    to: notification-service
+    kind: async
+    label: driver assigned event
+
+  - from: ride-service
+    to: driver-assignment-queue
+    kind: async
+    label: new ride request
+
+  - from: driver-assignment-queue
+    to: driver-assignment-service
+    kind: async
+    label: assignment job
+
+  - from: ride-service
+    to: kafka
+    kind: async
+    label: trip status event
+
+  - from: kafka
+    to: websocket-service
+    kind: async
+    label: trip status event
+
+  - from: driver-assignment-service
+    to: driver-location-cache
+    kind: bidirectional
+    label: nearby driver lookup
+
+  - from: driver-assignment-service
+    to: distributed-lock
+    kind: bidirectional
+    label: lock during assignment
+
+  - from: ride-service
+    to: database
+    kind: bidirectional
+    label: trip & fare records
+
+  - from: ride-service
+    to: mapping-service
+    kind: sync
+    label: route & ETA

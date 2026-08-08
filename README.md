@@ -33,6 +33,14 @@ Open the app, either:
 - click "Write spec" and write/paste a spec directly, JSON or YAML (see
   `docs/spec-schema.md`).
 
+Two spec shapes are supported and auto-detected: **single-system**
+(`root`/`components` — one central service and what it depends on) and
+**system design** (`nodes`/`edges` — an arbitrary multi-service graph, the
+kind you'd draw for a FAANG-style interview: queues, fan-out, services
+talking to each other rather than to one hub). See
+`examples/example-system-design-uber.yaml` for a worked system-design
+example, and `docs/spec-schema.md` for both schemas in full.
+
 Export the result as a self-contained animated HTML file, SVG, or PNG — or
 embed it live on any page with the `<diagramate-diagram>` web component:
 
@@ -64,9 +72,9 @@ diagramate/
 
 ## Roadmap
 
-v1 (done): spec schema (JSON/YAML), manual editor, NL-to-spec via BYO Anthropic key, animated HTML/SVG/PNG export, embeddable web component, Mermaid C4 export.
+v1 (done): spec schema (JSON/YAML) for both single-system and multi-service graph diagrams, manual editor with auto-detection, NL-to-spec via BYO Anthropic key (single-system only so far), animated HTML/SVG/PNG export, embeddable web component, Mermaid export (C4 for single-system, flowchart for graphs).
 
-v2+: OpenAI support (needs a proxy — see `docs/architecture.md`), multi-diagram "systems" (overview + per-flow), CLI for CI pipelines, GitHub Pages deployment.
+v2+: NL-to-spec for graph specs, OpenAI support (needs a proxy — see `docs/architecture.md`), edge-crossing minimization in the graph layout, per-flow diagram breakdown for very large systems, CLI for CI pipelines, GitHub Pages deployment.
 
 Full detail in [VISION.md](./VISION.md).
 

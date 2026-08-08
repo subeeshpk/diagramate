@@ -1,8 +1,7 @@
-import type { DiagramSpec } from "../spec";
-import { downloadBlob, slugify } from "./download";
+import { downloadBlob, slugify, type ExportableSpec } from "./download";
 
 /** Exports the raw SVG on its own, animation rules stripped (static docs use). */
-export function exportStaticSvg(svgElement: SVGSVGElement, spec: DiagramSpec) {
+export function exportStaticSvg(svgElement: SVGSVGElement, spec: ExportableSpec) {
   const clone = svgElement.cloneNode(true) as SVGSVGElement;
   clone.querySelectorAll("style").forEach((styleTag) => {
     styleTag.textContent = (styleTag.textContent ?? "").replace(

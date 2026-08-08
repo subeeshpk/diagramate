@@ -24,6 +24,7 @@ src/
 ├── export/          # renderer output -> standalone HTML / SVG file / PNG (via canvas rasterization)
 ├── editor/          # UI: NL input box, JSON/YAML spec editor, live preview
 ├── webcomponent/    # <diagramate-diagram> custom element + registration entry point
+├── systemDesign/    # peer-to-peer graph spec: schema, DAG layout, GraphSvg renderer, Mermaid flowchart export
 └── app/             # top-level app shell, routing (single page for v1)
 ```
 
@@ -126,6 +127,49 @@ attribute change) or a `.spec = {...}` property set from JS — both go through
 the same `validateSpec` used everywhere else, and invalid specs render an
 inline error panel in the shadow DOM instead of throwing, since a broken
 embed shouldn't take down the host page.
+
+### `systemDesign/`
+
+The peer-to-peer counterpart to `spec/` + `renderer/`: `SystemDesignSpec`
+({system, nodes, edges}) instead of the hub-and-spoke {root, components}
+shape. Exists because the original hub-and-spoke spec can't represent a
+queue feeding multiple consumers, a cache both read and written by the same
+service, or any system where components talk to each other rather than only
+to one center — exactly the gap between the two templates in the original
+`architecture_diagram_prompt_template.md` ("Template A: single system" vs
+"Template B: complex system design").
+
+`layout.ts` is the one genuinely algorithmic piece in the codebase: longest-
+path layering via Kahn's algorithm, with a DFS back-edge pass first so
+cycles (routine with `bidirectional` edges) don't make the layering loop
+forever. It's deliberately simple — no edge-crossing minimization, nodes
+keep their spec-file order within a layer — which is fine for the ~8-16 node
+graphs this schema is scoped to; a real crossing-reduction pass (barycenter
+or median heuristic) is the natural next step if bigger graphs start looking
+tangled. See `layout.test.ts` for the cases this needs to get right: linear
+chains, diamonds (longest path wins, not shortest), and cycle termination.
+
+`GraphSvg` reuses the exact palette (`renderer/theme.ts`'s `PALETTE`) so a
+graph diagram and a hub-and-spoke diagram from the same session don't look
+like two different products; node "kind" (`client`/`gateway`/`service`/
+`queue`/`cache`/`database`/`external`) just picks a sensible default color
+family, overridable per node.
+
+`App.tsx` auto-detects which spec shape was pasted (checks for a `nodes`
+key) rather than making the user pick a mode — one editor, one preview pane,
+two possible renderers underneath. The SVG-based exporters
+(`export/exportHtml.ts`, `exportSvg.ts`, `exportPng.ts`) were generalized to
+accept a minimal structural type (`ExportableSpec = { system: { name } }`)
+so they work for either spec without duplicating export code; Mermaid export
+did need to fork, since a hub-and-spoke spec maps naturally to Mermaid's C4
+diagram type while a graph maps to Mermaid's flowchart type — different
+diagram semantics, not just different data shapes.
+
+**Not yet done**: the NL-to-spec LLM adapter (`llm/`) only knows how to
+generate hub-and-spoke specs — `buildSystemPrompt()` hasn't been extended to
+also target the graph schema. `docs/prompt-template.md` is hub-and-spoke
+only for the same reason; a graph-spec prompt template is a natural,
+fairly small follow-up (mirror the structure, swap the schema description).
 
 ## What v1 explicitly does not need
 

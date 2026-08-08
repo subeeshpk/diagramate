@@ -1,3 +1,13 @@
+/**
+ * Minimal shape the SVG-based exporters need — just enough to build a
+ * filename and title. Both DiagramSpec (hub-and-spoke) and
+ * SystemDesignSpec (graph) satisfy this structurally, so exportHtml/Svg/Png
+ * work for either without importing either spec type directly.
+ */
+export interface ExportableSpec {
+  system: { name: string };
+}
+
 export function downloadBlob(content: BlobPart, filename: string, type: string) {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);

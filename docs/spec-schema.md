@@ -77,3 +77,70 @@ JSON, so there's no format toggle to pick. `examples/example-spec.json` and
    that's silently missing data.
 
 See `examples/example-spec.json` for a complete worked example.
+
+## System design (graph) spec
+
+The spec above models one root plus up to 7 things it depends on — good for
+"here's my service and its integrations," not for an arbitrary multi-service
+system where components talk to *each other*, not just to one center (a
+queue feeding multiple consumers, a cache read and written by several
+services, etc.). For that shape, use the graph spec instead:
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "system": {
+    "name": "Uber — Ride Matching System Design",
+    "subtitle": "Driver assignment flow"
+  },
+  "nodes": [
+    { "id": "driver-app", "name": "Driver App", "kind": "client" },
+    { "id": "ride-service", "name": "Ride Service", "kind": "service" },
+    { "id": "kafka", "name": "Kafka", "kind": "queue" }
+  ],
+  "edges": [
+    { "from": "ride-service", "to": "kafka", "kind": "async", "label": "trip status event" }
+  ]
+}
+```
+
+The editor auto-detects this shape (presence of a `nodes` key) and switches
+renderers automatically — no format picker, just paste either kind of spec.
+
+### Field reference
+
+| Field | Required | Notes |
+|---|---|---|
+| `schemaVersion` | yes | Same versioning story as the hub-and-spoke spec. |
+| `system.name` / `system.subtitle` | name required, subtitle optional | Shown as the diagram title. |
+| `nodes[].id` | yes | Stable identifier, referenced by edges. Unique. |
+| `nodes[].name` | yes | Node label. |
+| `nodes[].shortLabel` | no | Small label under the node name. |
+| `nodes[].kind` | no | One of `client \| gateway \| service \| queue \| cache \| database \| external`. Sets a default color (see `src/systemDesign/theme.ts`); omit for a plain white/navy "client" style. |
+| `nodes[].colorFamily` | no | Overrides the kind-based default color; same six-family palette as the hub-and-spoke spec. |
+| `edges[].from` / `edges[].to` | yes | Must reference existing node ids. |
+| `edges[].kind` | yes | `sync` (solid line, one arrowhead — request/response), `async` (animated dashed line — queues/events, use for fan-out by adding one edge per consumer), or `bidirectional` (solid, arrowheads both ends — e.g. a cache both read and written). |
+| `edges[].label` | no | Short label drawn at the edge midpoint; recommended for `async` edges so the event/topic name is visible. |
+
+### Validation rules
+
+1. `nodes` must have between 2 and 16 entries.
+2. `edges` must have at least 1 entry (up to 40).
+3. Node `id`s must be unique; every edge's `from`/`to` must reference a real node id.
+4. Unknown fields are rejected, same as the hub-and-spoke spec.
+
+### Layout
+
+Nodes are arranged top-to-bottom by longest-path layering (the same family
+of algorithm behind tools like dagre): a node's layer is one more than the
+deepest predecessor that reaches it, so a queue with a short path in and a
+long path in from elsewhere lands after the longer path. Cycles (common with
+`bidirectional` edges) are broken automatically via a back-edge detection
+pass before layering, so a cache that's both read and written doesn't
+deadlock the algorithm. See `src/systemDesign/layout.ts` for the
+implementation and its known limitation (no edge-crossing minimization yet —
+fine for the ~8-16 node graphs this schema targets).
+
+See `examples/example-system-design-uber.yaml` for a complete worked
+example — a driver-assignment flow modeled after the classic system design
+interview whiteboard diagram.
