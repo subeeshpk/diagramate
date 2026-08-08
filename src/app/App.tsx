@@ -1,11 +1,12 @@
 import { useMemo, useRef, useState } from "react";
-import exampleSpec from "../../examples/example-spec.json";
+// `?raw` loads the file's text as-is instead of parsing it — see src/vite-env.d.ts.
+import exampleSpecYaml from "../../examples/example-spec.yaml?raw";
 import { SpecEditor } from "../editor/SpecEditor";
 import { exportMermaid, exportStandaloneHtml, exportStaticPng, exportStaticSvg } from "../export";
 import { DiagramSvg } from "../renderer/DiagramSvg";
 import { parseSpecText, validateSpec } from "../spec";
 
-const DEFAULT_SPEC_TEXT = JSON.stringify(exampleSpec, null, 2);
+const DEFAULT_SPEC_TEXT = exampleSpecYaml;
 
 export function App() {
   const [specText, setSpecText] = useState(DEFAULT_SPEC_TEXT);
