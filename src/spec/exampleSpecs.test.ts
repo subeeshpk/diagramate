@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import pallgerixJson from "../../examples/example-spec.json";
 import pallgerixYaml from "../../examples/example-spec.yaml?raw";
 import uberYaml from "../../examples/example-spec-uber.yaml?raw";
+import uberSystemDesignYaml from "../../examples/example-spec-uber-system-design.yaml?raw";
 import { parseSpecText } from "./parse";
 import { validateSpec } from "./schema";
 
@@ -15,6 +16,7 @@ const EXAMPLE_SPECS: Record<string, unknown> = {
   "example-spec.json": pallgerixJson,
   "example-spec.yaml": pallgerixYaml,
   "example-spec-uber.yaml": uberYaml,
+  "example-spec-uber-system-design.yaml": uberSystemDesignYaml,
 };
 
 describe("bundled example specs", () => {

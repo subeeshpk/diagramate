@@ -1,0 +1,82 @@
+# A production-flavored system design for Uber's backend, generated with
+# docs/prompt-template.md. Diagramate's v1 schema models one root plus up to
+# 7 components, so this is the high-level "what the platform depends on"
+# view — internal microservices (trip matching, pricing/surge, dispatch)
+# are folded into the root's description rather than broken out, and
+# related third-party integrations are grouped to stay within the 7-item
+# cap (see docs/spec-schema.md). A per-flow breakdown (e.g. "request a
+# ride" step by step) is Template B territory — deferred to v2, see
+# VISION.md.
+schemaVersion: 1
+
+system:
+  name: Uber
+  subtitle: Ride-hailing platform backend · riders, drivers, real-time dispatch
+
+root:
+  label: Uber Platform API
+  description: Trip matching, dispatch, and pricing services
+
+components:
+  - id: postgres
+    name: PostgreSQL
+    shortLabel: Trip & account data
+    direction: bidirectional
+    colorFamily: blue
+    bullets:
+      - Stores rider/driver accounts, trip records, and fare history
+      - Platform reads and writes trip state on every request
+
+  - id: redis
+    name: Redis
+    shortLabel: Live geolocation & surge
+    direction: bidirectional
+    colorFamily: teal
+    bullets:
+      - Driver apps stream GPS pings every few seconds into Redis
+      - Dispatch reads nearby drivers and current surge multipliers from it
+
+  - id: maps
+    name: Google Maps Platform
+    shortLabel: Routing, ETA, geocoding
+    direction: outbound
+    colorFamily: green
+    bullets:
+      - Platform requests routes, ETAs, and turn-by-turn directions
+      - Used for both driver matching distance and rider-facing ETAs
+
+  - id: stripe
+    name: Stripe
+    shortLabel: Payments & payouts
+    direction: outbound
+    colorFamily: amber
+    bullets:
+      - Platform charges the rider automatically when a trip ends
+      - Stripe also handles weekly driver payouts and webhook confirmations
+
+  - id: kafka
+    name: Kafka
+    shortLabel: Trip event stream
+    direction: outbound
+    colorFamily: coral
+    bullets:
+      - Platform publishes trip lifecycle events (requested, matched, completed)
+      - Downstream consumers include analytics, fraud detection, and receipts
+
+  - id: notifications
+    name: Push & SMS
+    shortLabel: Firebase + Twilio
+    direction: outbound
+    colorFamily: purple
+    bullets:
+      - Firebase Cloud Messaging pushes live trip status to rider/driver apps
+      - Twilio sends SMS as a fallback when push delivery fails
+
+  - id: auth
+    name: Auth0
+    shortLabel: Rider & driver identity
+    direction: inbound
+    colorFamily: blue
+    bullets:
+      - Riders and drivers authenticate before requesting or accepting trips
+      - Auth0 issues a JWT the platform validates on every request
