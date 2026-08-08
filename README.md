@@ -42,6 +42,10 @@ embed it live on any page with the `<diagramate-diagram>` web component:
 Build it locally with `npm run build:webcomponent`; see
 `examples/embed.html` for a full working page.
 
+There's also a Mermaid C4 export ("Export Mermaid") that produces `.mmd`
+text renderable natively on GitHub, GitLab, and Notion — no image file
+required.
+
 ## Project layout
 
 ```
@@ -58,9 +62,9 @@ diagramate/
 
 ## Roadmap
 
-v1: spec schema, manual editor, NL-to-spec via BYO LLM key, animated HTML/SVG/PNG export, embeddable web component, static hosting on GitHub Pages.
+v1: spec schema, manual editor, NL-to-spec via BYO LLM key, animated HTML/SVG/PNG export, embeddable web component, Mermaid C4 export, static hosting on GitHub Pages.
 
-v2+: Mermaid/C4 DSL export, multi-diagram "systems" (overview + per-flow), CLI for CI pipelines, more LLM providers.
+v2+: multi-diagram "systems" (overview + per-flow), CLI for CI pipelines, more LLM providers.
 
 Full detail in [VISION.md](./VISION.md).
 

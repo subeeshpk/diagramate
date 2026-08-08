@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import exampleSpec from "../../examples/example-spec.json";
 import { SpecEditor } from "../editor/SpecEditor";
-import { exportStandaloneHtml, exportStaticPng, exportStaticSvg } from "../export";
+import { exportMermaid, exportStandaloneHtml, exportStaticPng, exportStaticSvg } from "../export";
 import { DiagramSvg } from "../renderer/DiagramSvg";
 import { validateSpec } from "../spec";
 
@@ -63,6 +63,13 @@ export function App() {
             disabled={!canExport}
             onClick={() => {
               if (svgRef.current && spec) void exportStaticPng(svgRef.current, spec);
+            }}
+          />
+          <ExportButton
+            label="Export Mermaid"
+            disabled={!canExport}
+            onClick={() => {
+              if (spec) exportMermaid(spec);
             }}
           />
         </div>
