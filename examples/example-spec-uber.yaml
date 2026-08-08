@@ -1,0 +1,74 @@
+# A worked example of docs/prompt-template.md in action: this is what a
+# model produces for the description "a small Uber-like ride-hailing app —
+# riders request a trip, get matched to a nearby driver, pay automatically
+# when the trip ends, and both sides get live status updates."
+schemaVersion: 1
+
+system:
+  name: QuickRide
+  subtitle: Small ride-hailing platform · riders, drivers, live matching
+
+root:
+  label: Ride Matching API
+  description: Core application server
+
+components:
+  - id: postgres
+    name: PostgreSQL
+    shortLabel: Trip & user data
+    direction: bidirectional
+    colorFamily: blue
+    bullets:
+      - Stores rider/driver profiles, trip history, and fare records
+      - App reads and writes trip state on every request
+
+  - id: redis
+    name: Redis
+    shortLabel: Live driver locations
+    direction: bidirectional
+    colorFamily: teal
+    bullets:
+      - Drivers' apps ping GPS location every few seconds
+      - Matching service reads nearby drivers when a rider requests a trip
+
+  - id: maps
+    name: Google Maps API
+    shortLabel: Routing & ETA
+    direction: outbound
+    colorFamily: green
+    bullets:
+      - App requests route, distance, and ETA for matching and pricing
+
+  - id: stripe
+    name: Stripe
+    shortLabel: Payments
+    direction: outbound
+    colorFamily: amber
+    bullets:
+      - App charges the rider's card automatically when a trip ends
+      - Stripe webhook confirms payment status back to the app
+
+  - id: fcm
+    name: Firebase Cloud Messaging
+    shortLabel: Push notifications
+    direction: outbound
+    colorFamily: coral
+    bullets:
+      - App pushes live trip status to both the rider and driver apps
+
+  - id: twilio
+    name: Twilio
+    shortLabel: SMS fallback
+    direction: outbound
+    colorFamily: purple
+    bullets:
+      - App sends an SMS trip confirmation if push notifications fail
+
+  - id: auth0
+    name: Auth0
+    shortLabel: Rider & driver login
+    direction: inbound
+    colorFamily: blue
+    bullets:
+      - Riders and drivers authenticate before requesting or accepting trips
+      - Auth0 issues a JWT the app validates on every request
